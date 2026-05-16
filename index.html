@@ -3,101 +3,738 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Ton-Oszillator Pro</title>
+  <title>SAMPOSZI Soundmixer-Sampler - v1.8</title>
   <style>
     :root {
       --bg: #10131a; --panel: rgba(255,255,255,.045); --text: #f4f7fb; --muted: #9aa4b2;
       --accent: #6ee7b7; --accent-2: #60a5fa; --danger: #fb7185; --warning: #fbbf24;
       --key-white:#f8fafc; --key-black:#0f172a;
     }
-    *{box-sizing:border-box} body{margin:0;min-height:100svh;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at top,#1f2937 0,var(--bg) 58%);color:var(--text);display:grid;place-items:start center;padding:4px;overflow-x:hidden}
-    .app{width:min(1220px,100%);min-height:calc(100svh - 8px);max-height:none;overflow:visible;background:rgba(24,29,41,.94);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:clamp(6px,1.2vw,14px);box-shadow:0 12px 36px rgba(0,0,0,.32)}
-    header{margin-bottom:8px}.brandbar{display:flex;align-items:end;justify-content:space-between;gap:10px;flex-wrap:wrap}.brand-meta{display:flex;gap:10px;align-items:center;color:var(--muted);font-size:.82rem;font-weight:700}.brand-name{opacity:.95}.brand-version{padding:3px 8px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}h1{margin:0 0 2px;font-size:clamp(1.25rem,3.2vw,2.2rem);letter-spacing:-.04em} h2{margin:0 0 6px;font-size:clamp(.86rem,1.7vw,1.02rem)} p{margin:0;color:var(--muted);line-height:1.42;font-size:clamp(.82rem,1.7vw,.96rem)}
-    .grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(320px,.95fr);gap:8px;align-items:start}.topbar{grid-column:1 / -1;display:grid;grid-template-columns:minmax(0,1.4fr) minmax(280px,.6fr);gap:8px;align-items:stretch}.left,.right{display:grid;gap:8px;min-width:0}.display{display:grid;gap:6px;grid-template-columns:repeat(3,minmax(0,1fr))}.compact-display{height:100%}.compact-display .tile{display:grid;align-content:center;padding:6px 8px}.compact-display .value{font-size:clamp(.82rem,1.8vw,1.15rem)}.compact-scope{padding:6px}.compact-scope canvas{height:72px;border-radius:10px}.tile,.panel{background:var(--panel);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:clamp(6px,1vw,10px)}
-    .label{color:var(--muted);font-size:.78rem;margin-bottom:4px}.value{font-size:clamp(1.05rem,2.6vw,1.75rem);font-weight:800;white-space:nowrap}.controls{display:grid;gap:9px;grid-template-columns:repeat(3,minmax(0,1fr))}.control{display:grid;gap:5px;min-width:0}label{font-weight:750;font-size:.86rem}input[type="range"]{width:100%;accent-color:var(--accent);min-height:24px}.buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-    button{border:0;border-radius:999px;padding:10px 15px;min-height:42px;font-weight:800;cursor:pointer;color:#071014;background:var(--accent);transition:transform .15s,filter .15s,box-shadow .15s;touch-action:manipulation}button:hover{transform:translateY(-1px);filter:brightness(1.07)}button.secondary{background:var(--accent-2)}button.stop{background:var(--danger)}button.latch.active{background:var(--warning);box-shadow:0 0 0 4px rgba(251,191,36,.18)}
-    .keyboard-wrap{overflow-x:auto;padding-bottom:6px;-webkit-overflow-scrolling:touch;width:100%}.keyboard{position:relative;width:max-content;min-width:var(--keyboard-width,840px);height:var(--keyboard-height,158px);user-select:none;touch-action:none}.white-keys{display:flex;height:100%}.key{position:relative;border:1px solid rgba(15,23,42,.45);display:flex;align-items:flex-end;justify-content:center;padding-bottom:11px;font-weight:800;cursor:pointer;transition:transform .08s,filter .08s;white-space:pre-line;touch-action:none}.key.white{width:var(--white-key-width,60px);height:var(--white-key-height,154px);background:linear-gradient(#fff,var(--key-white));color:#0f172a;border-radius:0 0 10px 10px;z-index:1;font-size:clamp(.68rem,1.3vw,.86rem)}.key.black{position:absolute;top:0;width:var(--black-key-width,38px);height:var(--black-key-height,96px);background:linear-gradient(#1f2937,var(--key-black));color:#e5e7eb;border-radius:0 0 9px 9px;z-index:2;font-size:clamp(.6rem,1.1vw,.74rem);padding-bottom:8px;box-shadow:0 8px 18px rgba(0,0,0,.45)}.key.active{filter:brightness(.78);transform:translateY(2px)}
-    .mini-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.mini{background:rgba(15,23,42,.58);border:1px solid rgba(255,255,255,.08);border-radius:13px;padding:8px;display:grid;gap:4px}.mini label{font-size:.74rem}.mini .read{display:flex;justify-content:space-between;color:var(--muted);font-size:.68rem}.mixer{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}.slider-card{background:rgba(15,23,42,.58);border:1px solid rgba(255,255,255,.08);border-radius:13px;padding:8px;display:grid;gap:4px}.slider-card label{font-size:.72rem}.slider-top{display:flex;justify-content:space-between;gap:6px;color:var(--muted);font-size:.64rem}.hint{color:var(--muted);font-size:.78rem;margin-bottom:8px}.analysis-text{color:var(--muted);font-size:.8rem;margin-top:9px}canvas{width:100%;height:clamp(64px,10vh,110px);display:block;border-radius:16px;background:#07111f}
-    @media(max-width:980px){.grid{grid-template-columns:1fr}.controls{grid-template-columns:repeat(3,minmax(0,1fr))}.mixer{grid-template-columns:repeat(6,minmax(0,1fr))}.mini-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
-    @media(orientation:landscape){body{padding:2px;overflow-x:hidden}.app{width:100%;max-width:100vw;padding:4px;border-radius:9px;overflow:hidden}header{display:block;margin-bottom:4px}.brandbar{align-items:center}.brandbar h1{font-size:.82rem;margin:0}.brandbar p{display:none}.brand-meta{font-size:.55rem;gap:5px}.brand-version{padding:2px 6px}.grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);grid-template-areas:'topbar topbar' 'keyboard keyboard' 'controls analysis' 'controls mixer' 'shape mixer';gap:5px;align-items:start}.topbar{grid-area:topbar;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(260px,.5fr);gap:5px;align-items:stretch}.left,.right{display:contents}.left>.panel{grid-area:keyboard}.right>.panel:nth-of-type(1){grid-area:controls}.right>.panel:nth-of-type(2){grid-area:shape}.right>.panel:nth-of-type(3){grid-area:analysis}.right>.panel:nth-of-type(4){grid-area:mixer}.compact-scope{padding:4px}.compact-scope canvas{height:54px}.compact-display{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;height:100%}.compact-display .tile{padding:4px 5px;min-height:54px}.compact-display .label{font-size:.46rem}.compact-display .value{font-size:.66rem;line-height:1.05}.left,.right{gap:5px}.panel,.tile{padding:4px;border-radius:8px;min-width:0}h2{font-size:.7rem;margin-bottom:3px}.controls{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}.controls label{font-size:.5rem}.buttons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin-top:5px}button{min-height:26px;padding:4px 5px;font-size:.52rem}.keyboard-wrap{width:100%;overflow:hidden;padding-bottom:2px}.keyboard{width:100%;min-width:0;--white-key-width:auto;--white-key-height:88px;--black-key-width:calc((100% / 15) * .64);--black-key-height:55px;--keyboard-width:100%;--keyboard-height:92px}.white-keys{display:grid;grid-template-columns:repeat(15,minmax(0,1fr));width:100%}.key.white{width:auto;min-width:0}.key{padding-bottom:3px}.key.white{font-size:.46rem}.key.black{font-size:.4rem}.mixer{grid-template-columns:repeat(8,minmax(0,1fr));gap:3px}.mini-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:3px}.slider-card,.mini{padding:3px;border-radius:7px}.slider-card label,.mini label{font-size:.44rem}.slider-top,.mini .read{font-size:.4rem}.hint,.analysis-text{display:none}canvas{height:52px}.preset-row{grid-template-columns:1fr repeat(3,auto);gap:3px;margin-top:4px}.preset-row input,.preset-row select{padding:4px 6px;font-size:.52rem}.preset-row button{min-height:24px;padding:3px 5px;font-size:.48rem}.preset-row select{grid-column:1 / -1}.octave-row{margin-bottom:3px;grid-template-columns:auto 1fr auto}.octave-display{font-size:.56rem}.octave-row button{min-height:24px;padding:3px 6px;font-size:.52rem}}
-    @media(max-width:700px) and (orientation:portrait){html,body{width:100%;max-width:100%;overflow-x:hidden}body{place-items:start center;padding:2px}.app{width:100%;max-width:100vw;border-radius:10px;padding:4px;overflow:hidden}header p{display:none}.tile{padding:5px}.label{font-size:.6rem}.value{font-size:.82rem}.controls{grid-template-columns:1fr 1fr 1fr;gap:6px}.buttons{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px}.keyboard{--white-key-width:42px;--white-key-height:118px;--black-key-width:28px;--black-key-height:74px;--keyboard-width:588px;--keyboard-height:122px}.key{padding-bottom:5px}.mixer{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.mini-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.slider-card,.mini{padding:5px;border-radius:9px}.slider-card label,.mini label{font-size:.58rem}.slider-top,.mini .read{font-size:.52rem}.hint{display:none}}
-    @media(max-width:430px) and (orientation:portrait){.app{padding:3px;border-radius:8px}.grid{gap:5px}.left,.right{gap:5px}h1{font-size:1.1rem}h2{font-size:.78rem}.panel{padding:5px}.buttons{gap:4px}button{padding:6px 6px;min-height:32px;font-size:.65rem}.controls label{font-size:.6rem}.keyboard{--white-key-width:34px;--white-key-height:100px;--black-key-width:22px;--black-key-height:62px;--keyboard-width:476px;--keyboard-height:104px}.key.white{font-size:.55rem}.key.black{font-size:.48rem}.display{gap:4px}.mixer{grid-template-columns:repeat(3,minmax(0,1fr))}.mini-grid{grid-template-columns:repeat(2,minmax(0,1fr))}canvas{height:56px}}
-    .octave-row{display:grid;grid-template-columns:auto 1fr auto;gap:6px;align-items:center;margin-bottom:6px}.octave-display{text-align:center;color:var(--muted);font-weight:800;font-size:.8rem}.octave-row button{min-height:30px;padding:6px 10px;font-size:.72rem}.preset-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:6px;margin-top:8px;max-width:100%}.preset-row input,.preset-row select{width:100%;min-width:0;background:#0f172a;color:var(--text);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:8px 10px;font-size:.78rem}.preset-row button{min-height:34px;padding:7px 10px;font-size:.72rem}
-    @media(max-width:430px){.preset-row{grid-template-columns:1fr 1fr}.preset-row select{grid-column:1 / -1;order:3}.preset-row input{font-size:.65rem;padding:6px 8px}.preset-row button{font-size:.62rem;min-height:30px;padding:5px}}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;font-family:system-ui,sans-serif;background:radial-gradient(circle at top,#1f2937 0,var(--bg) 58%);color:var(--text);padding:4px}
+    .app{max-width:1400px;margin:0 auto;background:rgba(24,29,41,.94);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:8px}
+    header{margin-bottom:6px}
+    .brandbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap}
+    h1{margin:0;font-size:clamp(1rem,2.5vw,1.4rem)}
+    .brand-meta{font-size:.7rem;color:var(--muted)}
+    
+    .main-grid{display:grid;grid-template-columns:1fr 340px;gap:8px}
+    .left-col{display:flex;flex-direction:column;gap:6px}
+    
+    .keyboard-area{background:var(--panel);border-radius:12px;padding:8px}
+    .octave-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px}
+    .octave-row button{padding:4px 12px;font-size:.7rem}
+    .octave-display{font-size:.75rem;background:rgba(0,0,0,.3);padding:4px 12px;border-radius:20px}
+    .keyboard-wrap{overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+    .keyboard{position:relative;width:max-content;min-width:840px;height:158px;user-select:none;touch-action:none}
+    .white-keys{display:flex;height:100%}
+    .key{position:relative;border:1px solid rgba(15,23,42,.45);display:flex;align-items:flex-end;justify-content:center;padding-bottom:11px;font-weight:800;cursor:pointer;transition:transform .08s,filter .08s;white-space:pre-line;touch-action:none}
+    .key.white{width:60px;height:154px;background:linear-gradient(#fff,var(--key-white));color:#0f172a;border-radius:0 0 10px 10px;z-index:1;font-size:clamp(.68rem,1.3vw,.86rem)}
+    .key.black{position:absolute;top:0;width:38px;height:96px;background:linear-gradient(#1f2937,var(--key-black));color:#e5e7eb;border-radius:0 0 9px 9px;z-index:2;font-size:clamp(.6rem,1.1vw,.74rem);padding-bottom:8px;box-shadow:0 8px 18px rgba(0,0,0,.45)}
+    .key.active{filter:brightness(.78);transform:translateY(2px)}
+    
+    .status-row{display:flex;justify-content:space-around;gap:8px;margin-top:8px;padding-top:6px;border-top:1px solid rgba(255,255,255,.1)}
+    .status-item{text-align:center;background:rgba(0,0,0,.2);border-radius:16px;padding:4px 12px;flex:1}
+    .status-label{font-size:.6rem;color:var(--muted)}
+    .status-value{font-size:.8rem;font-weight:700}
+    .status-led{display:inline-block;width:8px;height:8px;border-radius:50%;background:#fb7185;margin-left:5px}
+    .status-led.active{background:#6ee7b7;box-shadow:0 0 4px #6ee7b7}
+    
+    .graphs-row{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+    .graph-card{background:var(--panel);border-radius:10px;padding:4px}
+    .graph-card h3{font-size:.65rem;margin:0 0 3px 0;color:var(--muted);font-weight:500}
+    .graph-card canvas{width:100%;height:70px;display:block;background:#07111f;border-radius:6px}
+    .env-toolbar{display:flex;gap:3px;margin-top:3px}
+    .env-toolbar button{font-size:.55rem;padding:2px 6px;min-height:22px}
+    
+    .right-col{display:flex;flex-direction:column;gap:6px}
+    .panel{background:var(--panel);border-radius:10px;padding:6px}
+    .panel h2{font-size:.75rem;margin:0 0 5px 0}
+    
+    .controls{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+    .control{display:grid;gap:2px}
+    .control label{font-size:.65rem}
+    input[type="range"]{width:100%;accent-color:var(--accent)}
+    
+    .buttons{display:flex;gap:5px;flex-wrap:wrap;margin-top:5px}
+    button{border:none;border-radius:20px;padding:5px 10px;font-size:.65rem;font-weight:600;cursor:pointer;background:var(--accent);color:#071014;transition:all .1s}
+    button.secondary{background:var(--accent-2)}
+    button.stop{background:var(--danger)}
+    button.latch.active{background:var(--warning)}
+    
+    .mini-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+    .mini{background:rgba(15,23,42,.6);border-radius:8px;padding:4px}
+    .mini label{font-size:.6rem}
+    .mini .read{font-size:.55rem;display:flex;justify-content:space-between}
+    
+    .mixer{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+    .slider-card{background:rgba(15,23,42,.6);border-radius:8px;padding:4px}
+    .slider-card label{font-size:.6rem}
+    .slider-top{font-size:.55rem;display:flex;justify-content:space-between}
+    
+    .preset-row{display:grid;grid-template-columns:1fr auto auto auto;gap:4px;margin-top:5px}
+    .preset-row input,.preset-row select{background:#0f172a;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:4px 6px;font-size:.65rem;color:white}
+    .preset-row button{padding:4px 8px}
+    
+    .hint{font-size:.6rem;color:var(--muted);margin-bottom:4px}
+    .analysis-text{font-size:.65rem;margin-top:5px;color:var(--muted)}
+    .folder-row{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap}
+    .folder-row button{padding:3px 8px;font-size:.6rem}
+    
+    @media (orientation: landscape) and (min-height: 450px) {
+      body{padding:2px}
+      .app{padding:6px}
+      .main-grid{grid-template-columns:1fr 280px;gap:6px}
+      .keyboard{height:100px;min-width:600px}
+      .key.white{height:100px;width:44px}
+      .key.black{height:65px;width:30px}
+      .graph-card canvas{height:50px}
+      .status-item{padding:2px 8px}
+      .right-col{max-height:calc(100vh - 70px);overflow-y:auto}
+      .right-col::-webkit-scrollbar{width:3px}
+    }
+    @media (max-width: 800px), (orientation: portrait) {
+      .main-grid{grid-template-columns:1fr}
+      .right-col{max-height:none}
+    }
+    @media (max-width: 550px) {
+      .graphs-row{grid-template-columns:1fr;gap:4px}
+      .mini-grid{grid-template-columns:repeat(2,1fr)}
+      .mixer{grid-template-columns:repeat(3,1fr)}
+    }
   </style>
 </head>
 <body>
-  <main class="app">
-    <header><div class="brandbar"><div><h1>SAMPOSZI </h1><p>Sound-Oszillator-Sampler, additive Oberton-Synthese, Rauschen, Detune, Filter und Mikrofon-Analyse.</p></div><div class="brand-meta"><span class="brand-name">by Stefan Löseke flyloetrump-loboratory</span><span class="brand-version">v0.9</span></div></div></header>
-    <section class="grid">
-      <div class="topbar">
-        <section class="panel scope-panel compact-scope"><canvas id="scope" width="1000" height="220"></canvas></section>
-        <section class="display compact-display">
-          <div class="tile"><div class="label">Grundfrequenz</div><div class="value"><span id="frequencyValue">261.63</span> Hz</div></div>
-          <div class="tile"><div class="label">Note</div><div class="value" id="noteValue">C4</div></div>
-          <div class="tile"><div class="label">Status</div><div class="value" id="statusValue">Aus</div></div>
-        </section>
+<div class="app">
+  <header>
+    <div class="brandbar">
+      <div><h1>🎹 SAMPOSZI Soundmixer-Sampler - v1.8</h1></div>
+      <div class="brand-meta">additive Synthese • by Stefan Löseke flyloetrump-loboratory</div>
+	  
+    </div>
+  </header>
+  
+  <div class="main-grid">
+    <div class="left-col">
+      <div class="keyboard-area">
+        <div class="octave-row">
+          <button id="octaveDownBtn" class="secondary">− Oktave</button>
+          <span class="octave-display">Oktave <span id="octaveVal">0</span></span>
+          <button id="octaveUpBtn" class="secondary">+ Oktave</button>
+        </div>
+        <div class="keyboard-wrap">
+          <div id="keyboard" class="keyboard">
+            <div id="whiteKeys" class="white-keys"></div>
+          </div>
+        </div>
+        <div class="status-row">
+          <div class="status-item"><div class="status-label">Frequenz</div><div class="status-value"><span id="freqVal">261.63</span> Hz</div></div>
+          <div class="status-item"><div class="status-label">Note</div><div class="status-value" id="noteVal">C4</div></div>
+          <div class="status-item"><div class="status-label">Status</div><div class="status-value" id="statusVal">Aus<span class="status-led" id="statusLed"></span></div></div>
+        </div>
       </div>
-      <div class="left">
-        <section class="panel"><h2>Klaviertastatur</h2><p class="hint">Halte-Modus: Töne bleiben stehen. Oktave verschiebt die Tastatur nach unten/oben.</p><div class="octave-row"><button id="octaveDownButton" class="secondary">− Okt</button><div class="octave-display">Oktave: <span id="octaveShiftValue">0</span></div><button id="octaveUpButton" class="secondary">+ Okt</button></div><div class="keyboard-wrap"><div id="keyboard" class="keyboard"><div id="whiteKeys" class="white-keys"></div></div></div></section>
-        
+      
+      <div class="graphs-row">
+        <div class="graph-card"><h3>📈 Oszilloskop</h3><canvas id="oscCanvas" width="400" height="120"></canvas></div>
+        <div class="graph-card"><h3>🎚 Hüllkurve</h3><canvas id="envCanvas" width="400" height="120"></canvas><div class="env-toolbar"><button id="resetEnvBtn" class="secondary">Reset</button><button id="applyEnvBtn">Anwenden</button></div></div>
+        <div class="graph-card"><h3>📊 Spektrum</h3><canvas id="specCanvas" width="400" height="120"></canvas></div>
       </div>
-      <div class="right">
-        <section class="panel"><h2>Steuerung</h2><div class="controls">
-          <div class="control"><label for="masterVolume">Lautstärke: <span id="masterVolumeValue">25</span>%</label><input id="masterVolume" type="range" min="0" max="100" value="25"></div>
-          <div class="control"><label for="attack">Attack: <span id="attackValue">20</span> ms</label><input id="attack" type="range" min="0" max="700" value="20"></div>
-          <div class="control"><label for="release">Release: <span id="releaseValue">180</span> ms</label><input id="release" type="range" min="10" max="2000" value="180"></div>
-        </div><div class="buttons"><button id="latchButton" class="latch" aria-pressed="false">Grün: Halten aus</button><button id="demoButton" class="secondary">Demo-Ton</button><button id="stopButton" class="stop">Alle stoppen</button></div></section>
-        <section class="panel"><h2>Klang-Formung</h2><div id="synthControls" class="mini-grid"></div><div class="preset-row"><input id="presetName" type="text" placeholder="Klangname"><button id="savePresetButton">Speichern</button><button id="loadPresetButton" class="secondary">Laden</button><button id="exportWavButton" class="secondary">WAV</button><button id="exportJsonButton" class="secondary">JSON</button><button id="chooseFolderButton" class="secondary">Ordner</button><button id="deletePresetButton" class="stop">Löschen</button><select id="presetSelect"><option value="">Klang wählen …</option></select></div></section>
-        <section class="panel"><h2>Mikrofon-Analyse</h2><p class="hint">Ein einzelner stabiler Ton funktioniert am besten. Analyse setzt Grundton, Obertöne, Rauschen und Filter näherungsweise.</p><div class="buttons"><button id="recordButton">Aufnehmen</button><button id="analyzeButton" class="secondary">Analysieren</button></div><p id="analysisText" class="analysis-text">Noch keine Aufnahme.</p></section>
-        <section class="panel"><h2>Oberton-Mixer</h2><p class="hint">16 harmonische + 8 unharmonische Teiltöne, kompakt für iPad/iPhone.</p><div id="mixer" class="mixer"></div></section>
+    </div>
+    
+    <div class="right-col">
+      <div class="panel"><h2>🎛 Steuerung</h2>
+        <div class="controls">
+          <div class="control"><label>Lautstärke: <span id="masterVolVal">25</span>%</label><input id="masterVol" type="range" min="0" max="100" value="25"></div>
+          <div class="control"><label>Attack: <span id="attackVal">20</span> ms</label><input id="attack" type="range" min="0" max="700" value="20"></div>
+          <div class="control"><label>Release: <span id="releaseVal">180</span> ms</label><input id="release" type="range" min="10" max="2000" value="180"></div>
+        </div>
+        <div class="buttons"><button id="latchBtn" class="latch">🔒 Halten</button><button id="demoBtn" class="secondary">🎵 Demo</button><button id="stopBtn" class="stop">⏹ Alle aus</button></div>
       </div>
-    </section>
-  </main>
+      
+      <div class="panel"><h2>🎛 Klang-Formung</h2><div id="synthControls" class="mini-grid"></div>
+        <div class="preset-row"><input id="presetName" placeholder="Klangname"><button id="savePreset">💾</button><button id="loadPreset">📂</button><button id="delPreset" class="stop">🗑</button><select id="presetSelect"><option value="">Preset</option></select></div>
+        <div class="folder-row"><button id="exportWavBtn" class="secondary">🎵 WAV exportieren</button><button id="chooseFolderBtn" class="secondary">📁 Ordner wählen</button></div>
+      </div>
+      
+      <div class="panel"><h2>🎤 Mikrofon-Analyse</h2>
+        <p class="hint">Einzelnen stabilen Ton singen/spielen</p>
+        <div class="buttons"><button id="recordBtn">🎙 Aufnehmen</button><button id="analyzeBtn" class="secondary">🔍 Analysieren</button></div>
+        <div id="analysisProgress" style="display:none"><progress value="0" max="100" style="width:100%"></progress></div>
+        <p id="analysisText" class="analysis-text">Keine Aufnahme</p>
+      </div>
+      
+      <div class="panel"><h2>🎛 Oberton-Mixer</h2><div id="mixer" class="mixer"></div></div>
+    </div>
+  </div>
+</div>
 
-  <script>
-    const baseNotes=[{name:'C',semi:0,type:'white',key:'a'},{name:'C#',semi:1,type:'black',key:'w'},{name:'D',semi:2,type:'white',key:'s'},{name:'D#',semi:3,type:'black',key:'e'},{name:'E',semi:4,type:'white',key:'d'},{name:'F',semi:5,type:'white',key:'f'},{name:'F#',semi:6,type:'black',key:'t'},{name:'G',semi:7,type:'white',key:'g'},{name:'G#',semi:8,type:'black',key:'z'},{name:'A',semi:9,type:'white',key:'h'},{name:'A#',semi:10,type:'black',key:'u'},{name:'B',semi:11,type:'white',key:'j'}];let octaveShift=0;let notes=[];function makeNote(name,semi,octave,type,key){const midi=(octave+1)*12+semi;return{name:`${name}${octave}`,freq:440*Math.pow(2,(midi-69)/12),type,key}}function buildNotes(){const startOctave=4+octaveShift;const list=[];for(let octave=startOctave;octave<=startOctave+1;octave++){baseNotes.forEach(n=>list.push(makeNote(n.name,n.semi,octave,n.type,octave===startOctave?n.key:null)))}list.push(makeNote('C',0,startOctave+2,'white',null));notes=list}buildNotes();
-    const partials=[];for(let i=1;i<=16;i++)partials.push({id:`p${i}`,label:i===1?'Grund':`${i}.H`,ratio:i,value:i===1?100:Math.round(58/Math.pow(i,.92)),group:'harm'});[1.37,1.81,2.41,2.71,3.42,4.16,5.83,7.25].forEach((r,i)=>partials.push({id:`i${i+1}`,label:`U${i+1}`,ratio:r,value:0,group:`${r}x`}));
-    const synthParams={decay:{label:'Decay',value:360,min:20,max:2200,unit:'ms'},sustain:{label:'Sustain',value:70,min:0,max:100,unit:'%'},detune:{label:'Detune',value:0,min:0,max:30,unit:'ct'},noise:{label:'Rauschen',value:0,min:0,max:100,unit:'%'},filter:{label:'Filter',value:100,min:10,max:100,unit:'%'},resonance:{label:'Resonanz',value:8,min:1,max:30,unit:'Q'},brightness:{label:'Brillanz',value:70,min:0,max:100,unit:'%'},motion:{label:'Schwebung',value:0,min:0,max:100,unit:'%'}};
-    const $=s=>document.querySelector(s);const frequencyValue=$('#frequencyValue'),noteValue=$('#noteValue'),statusValue=$('#statusValue'),octaveShiftValue=$('#octaveShiftValue'),octaveDownButton=$('#octaveDownButton'),octaveUpButton=$('#octaveUpButton'),masterVolume=$('#masterVolume'),masterVolumeValue=$('#masterVolumeValue'),attack=$('#attack'),attackValue=$('#attackValue'),release=$('#release'),releaseValue=$('#releaseValue'),keyboard=$('#keyboard'),whiteKeys=$('#whiteKeys'),mixer=$('#mixer'),synthControls=$('#synthControls'),stopButton=$('#stopButton'),demoButton=$('#demoButton'),latchButton=$('#latchButton'),recordButton=$('#recordButton'),analyzeButton=$('#analyzeButton'),analysisText=$('#analysisText'),presetName=$('#presetName'),presetSelect=$('#presetSelect'),savePresetButton=$('#savePresetButton'),loadPresetButton=$('#loadPresetButton'),exportWavButton=$('#exportWavButton'),exportJsonButton=$('#exportJsonButton'),chooseFolderButton=$('#chooseFolderButton'),deletePresetButton=$('#deletePresetButton'),canvas=$('#scope'),ctx=canvas.getContext('2d');
-    let audioContext=null,masterGain=null,activeVoices=new Map(),currentNote=notes[0],animationId=null,latchMode=false,recorder=null,recordedChunks=[],recordedBuffer=null,recordingStream=null,downloadFolderHandle=null;
-    function ensureAudio(){if(!audioContext){audioContext=new(window.AudioContext||window.webkitAudioContext)();masterGain=audioContext.createGain();masterGain.gain.value=Number(masterVolume.value)/100;masterGain.connect(audioContext.destination)}}
-    function getWhiteKeyWidth(){
-      const whiteCount = notes.filter(n => n.type === 'white').length;
-      const rectWidth = keyboard.getBoundingClientRect().width;
-      if (rectWidth && whiteCount) return rectWidth / whiteCount;
-      const cssWidth = parseFloat(getComputedStyle(keyboard).getPropertyValue('--white-key-width'));
-      return cssWidth || 60;
+<script>
+// ==================== SYNTH ENGINE ====================
+class SynthEngine {
+  constructor() {
+    this.ctx = null; this.master = null; this.voices = new Map(); this.noiseBuf = null;
+    this.currentNote = null; this.customEnv = null; this.useCustomEnv = false;
+    this.params = { masterVolume:25, attack:20, release:180, decay:360, sustain:70, detune:0, noise:0, filter:100, resonance:8, brightness:70, motion:0 };
+    this.partials = []; this.notes = []; this.octaveShift = 0;
+    this.initPartials(); this.buildNotes();
+  }
+  initPartials() {
+    for(let i=1;i<=16;i++) this.partials.push({ id:`p${i}`, label:i===1?'Grund':`${i}.H`, ratio:i, value:i===1?100:Math.round(58/Math.pow(i,0.92)), group:'harm' });
+    [1.37,1.81,2.41,2.71,3.42,4.16,5.83,7.25].forEach((r,i)=> this.partials.push({ id:`i${i+1}`, label:`U${i+1}`, ratio:r, value:0, group:`${r}x` }));
+  }
+  buildNotes() {
+    const baseNotes = [
+      { name: 'C', semi: 0, type: 'white', key: 'a' }, { name: 'C#', semi: 1, type: 'black', key: 'w' },
+      { name: 'D', semi: 2, type: 'white', key: 's' }, { name: 'D#', semi: 3, type: 'black', key: 'e' },
+      { name: 'E', semi: 4, type: 'white', key: 'd' }, { name: 'F', semi: 5, type: 'white', key: 'f' },
+      { name: 'F#', semi: 6, type: 'black', key: 't' }, { name: 'G', semi: 7, type: 'white', key: 'g' },
+      { name: 'G#', semi: 8, type: 'black', key: 'z' }, { name: 'A', semi: 9, type: 'white', key: 'h' },
+      { name: 'A#', semi: 10, type: 'black', key: 'u' }, { name: 'B', semi: 11, type: 'white', key: 'j' }
+    ];
+    const startOctave = 4 + this.octaveShift;
+    this.notes = [];
+    for (let octave = startOctave; octave <= startOctave + 1; octave++) {
+      baseNotes.forEach(n => {
+        const midi = (octave + 1) * 12 + n.semi;
+        this.notes.push({
+          name: `${n.name}${octave}`,
+          freq: 440 * Math.pow(2, (midi - 69) / 12),
+          type: n.type,
+          key: octave === startOctave ? n.key : null,
+          semi: n.semi
+        });
+      });
     }
-    function renderKeyboard(){whiteKeys.innerHTML='';keyboard.querySelectorAll('.key.black').forEach(k=>k.remove());notes.filter(n=>n.type==='white').forEach(note=>{const key=document.createElement('button');key.className='key white';key.dataset.note=note.name;key.textContent=note.key?`${note.name}
-${note.key.toUpperCase()}`:note.name;bindKeyEvents(key,note);whiteKeys.appendChild(key)});positionBlackKeys();if(octaveShiftValue)octaveShiftValue.textContent=octaveShift>0?`+${octaveShift}`:String(octaveShift)}
-    function positionBlackKeys(){keyboard.querySelectorAll('.key.black').forEach(k=>k.remove());const w=getWhiteKeyWidth(),off=w*.68,map=new Map();let wi=0;notes.forEach(n=>{if(n.type==='white')map.set(n.name,wi++)});notes.forEach((note,index)=>{if(note.type!=='black')return;const prev=[...notes.slice(0,index)].reverse().find(n=>n.type==='white');const key=document.createElement('button');key.className='key black';key.dataset.note=note.name;key.textContent=note.key?`${note.name}
-${note.key.toUpperCase()}`:note.name;key.style.left=`${map.get(prev.name)*w+off}px`;bindKeyEvents(key,note);keyboard.appendChild(key)})}function shiftOctave(delta){octaveShift=Math.max(-1,Math.min(1,octaveShift+delta));stopAllNotes();buildNotes();currentNote=notes[0];setCurrentNote(currentNote);renderKeyboard();drawWave()}
-    function bindKeyEvents(key,note){key.addEventListener('pointerdown',e=>{e.preventDefault();key.setPointerCapture(e.pointerId);latchMode?toggleLatchedNote(note):playNote(note)});key.addEventListener('pointerup',e=>{e.preventDefault();if(!latchMode)stopNote(note.name)});key.addEventListener('pointercancel',()=>{if(!latchMode)stopNote(note.name)})}
-    function renderMixer(){partials.forEach(partial=>{const card=document.createElement('div');card.className='slider-card';card.innerHTML=`<label for="${partial.id}">${partial.label}</label><div class="slider-top"><span>${partial.group}</span><span><span id="${partial.id}Value">${partial.value}</span>%</span></div><input id="${partial.id}" type="range" min="0" max="100" value="${partial.value}" step="1">`;mixer.appendChild(card);card.querySelector('input').addEventListener('input',e=>setPartialValue(partial,Number(e.target.value)))})}
-    function renderSynthControls(){Object.entries(synthParams).forEach(([id,p])=>{const box=document.createElement('div');box.className='mini';box.innerHTML=`<label for="${id}">${p.label}</label><div class="read"><span>${p.min}-${p.max}</span><span><span id="${id}Value">${p.value}</span>${p.unit}</span></div><input id="${id}" type="range" min="${p.min}" max="${p.max}" value="${p.value}" step="1">`;synthControls.appendChild(box);box.querySelector('input').addEventListener('input',e=>setSynthParam(id,Number(e.target.value)))})}
-    function setSynthParam(id,value){synthParams[id].value=value;const input=document.getElementById(id),out=document.getElementById(`${id}Value`);if(input)input.value=value;if(out)out.textContent=value;updateActiveVoiceGains();drawWave()}
-    function setPartialValue(partial,value){partial.value=Math.max(0,Math.min(100,Math.round(value)));const input=document.getElementById(partial.id),out=document.getElementById(`${partial.id}Value`);if(input)input.value=partial.value;if(out)out.textContent=partial.value;updateActiveVoiceGains();drawWave()}
-    function setKeyActive(noteName,active){const el=document.querySelector(`[data-note="${noteName}"]`);if(el)el.classList.toggle('active',active)}function nearestNote(freq){return notes.reduce((b,n)=>Math.abs(n.freq-freq)<Math.abs(b.freq-freq)?n:b,notes[0])}function setCurrentNote(note){currentNote=note;frequencyValue.textContent=note.freq.toFixed(2);noteValue.textContent=note.name}
-    function makeNoiseBuffer(seconds=2){const buffer=audioContext.createBuffer(1,audioContext.sampleRate*seconds,audioContext.sampleRate),data=buffer.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=Math.random()*2-1;return buffer}
-    function playNote(note){ensureAudio();if(audioContext.state==='suspended')audioContext.resume();setCurrentNote(note);if(activeVoices.has(note.name))return;statusValue.textContent='An';setKeyActive(note.name,true);const now=audioContext.currentTime,atk=Number(attack.value)/1000,dec=synthParams.decay.value/1000,sus=synthParams.sustain.value/100,rel=Number(release.value)/1000;const voiceGain=audioContext.createGain(),filter=audioContext.createBiquadFilter();filter.type='lowpass';filter.frequency.value=filterFreq(note.freq);filter.Q.value=synthParams.resonance.value;voiceGain.gain.setValueAtTime(0,now);voiceGain.gain.linearRampToValueAtTime(1,now+atk);voiceGain.gain.linearRampToValueAtTime(sus,now+atk+dec);filter.connect(voiceGain);voiceGain.connect(masterGain);
-      const det=synthParams.detune.value,motion=synthParams.motion.value/100,oscillators=[];partials.forEach(partial=>{[-1,1].forEach(side=>{const osc=audioContext.createOscillator(),gain=audioContext.createGain();osc.type='sine';const cents=det*side*(.35+.65*Math.random())+side*motion*2;osc.frequency.value=note.freq*partial.ratio*Math.pow(2,cents/1200);gain.gain.value=getPartialGain(partial)/(det>0?1.65:1);osc.connect(gain);gain.connect(filter);osc.start(now);oscillators.push({osc,gain,partial})})});
-      const noiseSource=audioContext.createBufferSource(),noiseGain=audioContext.createGain(),noiseFilter=audioContext.createBiquadFilter();noiseSource.buffer=makeNoiseBuffer();noiseSource.loop=true;noiseFilter.type='bandpass';noiseFilter.frequency.value=Math.min(9000,note.freq*(2+synthParams.brightness.value/8));noiseFilter.Q.value=1.2;noiseGain.gain.value=synthParams.noise.value/100*.32;noiseSource.connect(noiseFilter);noiseFilter.connect(noiseGain);noiseGain.connect(filter);noiseSource.start(now);activeVoices.set(note.name,{voiceGain,filter,oscillators,noiseSource,noiseGain,release:rel});drawWave()}
-    function toggleLatchedNote(note){setCurrentNote(note);activeVoices.has(note.name)?stopNote(note.name,true):playNote(note)}
-    function stopNote(noteName,immediate=false){const voice=activeVoices.get(noteName);if(!voice||!audioContext)return;const now=audioContext.currentTime,rel=immediate?.04:voice.release;voice.voiceGain.gain.cancelScheduledValues(now);voice.voiceGain.gain.setTargetAtTime(.0001,now,Math.max(.01,rel/4));setTimeout(()=>{voice.oscillators.forEach(({osc,gain})=>{try{osc.stop()}catch(e){}osc.disconnect();gain.disconnect()});try{voice.noiseSource.stop()}catch(e){}voice.noiseSource.disconnect();voice.noiseGain.disconnect();voice.filter.disconnect();voice.voiceGain.disconnect();activeVoices.delete(noteName);setKeyActive(noteName,false);if(activeVoices.size===0)statusValue.textContent='Aus'},rel*1000+50)}
-    function stopAllNotes(){[...activeVoices.keys()].forEach(n=>stopNote(n,true))}function filterFreq(base){const v=synthParams.filter.value/100,b=synthParams.brightness.value/100;return Math.min(18000,base*(2+v*34)*(0.45+b))}function getPartialGain(partial){const bright=.25+synthParams.brightness.value/100*.95;return partial.value/100/Math.pow(partial.ratio,1-bright*.5)}
-    function updateActiveVoiceGains(){if(!audioContext)return;activeVoices.forEach(voice=>{voice.filter.frequency.setTargetAtTime(filterFreq(currentNote.freq),audioContext.currentTime,.02);voice.filter.Q.setTargetAtTime(synthParams.resonance.value,audioContext.currentTime,.02);voice.noiseGain.gain.setTargetAtTime(synthParams.noise.value/100*.32,audioContext.currentTime,.02);voice.oscillators.forEach(({gain,partial})=>gain.gain.setTargetAtTime(getPartialGain(partial)/(synthParams.detune.value>0?1.65:1),audioContext.currentTime,.01))})}
-    function updateLabels(){masterVolumeValue.textContent=masterVolume.value;attackValue.textContent=attack.value;releaseValue.textContent=release.value}function getPresetData(){return{partials:partials.map(p=>({id:p.id,value:p.value})),synth:Object.fromEntries(Object.entries(synthParams).map(([k,v])=>[k,v.value])),master:Number(masterVolume.value),attack:Number(attack.value),release:Number(release.value),note:currentNote.name}}function applyPresetData(data){if(!data)return;if(data.partials)data.partials.forEach(saved=>{const p=partials.find(x=>x.id===saved.id);if(p)setPartialValue(p,saved.value)});if(data.synth)Object.entries(data.synth).forEach(([id,value])=>{if(synthParams[id])setSynthParam(id,value)});if(typeof data.master==='number'){masterVolume.value=data.master;masterVolume.dispatchEvent(new Event('input'))}if(typeof data.attack==='number')attack.value=data.attack;if(typeof data.release==='number')release.value=data.release;updateLabels();const note=notes.find(n=>n.name===data.note);if(note)setCurrentNote(note);drawWave()}function loadPresetStore(){try{return JSON.parse(localStorage.getItem('tonOszillatorPresets')||'{}')}catch(e){return{}}}function savePresetStore(store){localStorage.setItem('tonOszillatorPresets',JSON.stringify(store))}function safeFileName(name,ext){return `${(name||currentNote.name||'klang').replace(/[^a-z0-9äöüß_-]/gi,'_')}.${ext}`}async function saveBlob(blob,fileName){if(downloadFolderHandle){try{const fileHandle=await downloadFolderHandle.getFileHandle(fileName,{create:true});const writable=await fileHandle.createWritable();await writable.write(blob);await writable.close();analysisText.textContent=`Gespeichert im gewählten Ordner: ${fileName}`;return}catch(e){analysisText.textContent='Ordnerzugriff nicht möglich. Fallback: normaler Download.'}}const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=fileName;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);analysisText.textContent=`Download gestartet: ${fileName}`}async function chooseDownloadFolder(){if(!window.showDirectoryPicker){analysisText.textContent='Ordnerauswahl wird von diesem Browser nicht unterstützt. Downloads landen im Standard-Downloadordner.';return}try{downloadFolderHandle=await window.showDirectoryPicker({mode:'readwrite'});analysisText.textContent='Ordner gewählt. WAV/JSON werden ab jetzt dort gespeichert.'}catch(e){analysisText.textContent='Keine Ordnerauswahl getroffen. Es bleibt beim normalen Downloadordner.'}}function refreshPresetSelect(){const store=loadPresetStore();presetSelect.innerHTML='<option value="">Klang wählen …</option>';Object.keys(store).sort().forEach(name=>{const option=document.createElement('option');option.value=name;option.textContent=name;presetSelect.appendChild(option)})}function saveCurrentPreset(){const name=(presetName.value||`Klang ${new Date().toLocaleString('de-DE')}`).trim();if(!name)return;const store=loadPresetStore();store[name]=getPresetData();savePresetStore(store);presetName.value=name;refreshPresetSelect();presetSelect.value=name}function loadSelectedPreset(){const store=loadPresetStore();const name=presetSelect.value;if(name&&store[name]){presetName.value=name;applyPresetData(store[name])}}function deleteSelectedPreset(){const name=presetSelect.value||presetName.value.trim();if(!name)return;const store=loadPresetStore();delete store[name];savePresetStore(store);presetName.value='';refreshPresetSelect()}function updateLatchButton(){latchButton.classList.toggle('active',latchMode);latchButton.setAttribute('aria-pressed',String(latchMode));latchButton.textContent=latchMode?'Gelb: Halten an':'Grün: Halten aus'}
-    async function startRecording(){try{recordedChunks=[];recordedBuffer=null;ensureAudio();recordingStream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:false,noiseSuppression:false,autoGainControl:false}});recorder=new MediaRecorder(recordingStream);recorder.ondataavailable=e=>{if(e.data.size>0)recordedChunks.push(e.data)};recorder.onstop=decodeRecording;recorder.start();recordButton.textContent='Stoppen';analysisText.textContent='Aufnahme läuft … spiele oder singe einen einzelnen stabilen Ton.'}catch(e){analysisText.textContent='Mikrofon konnte nicht geöffnet werden. Prüfe Berechtigungen und nutze HTTPS oder localhost.'}}
-    function stopRecording(){if(recorder&&recorder.state!=='inactive')recorder.stop();if(recordingStream)recordingStream.getTracks().forEach(t=>t.stop());recordButton.textContent='Aufnehmen';analysisText.textContent='Aufnahme gespeichert. Jetzt „Analysieren“ drücken.'}async function decodeRecording(){const blob=new Blob(recordedChunks,{type:recorder.mimeType}),arr=await blob.arrayBuffer();recordedBuffer=await audioContext.decodeAudioData(arr)}
-    function autoCorrelate(samples,sampleRate){const rms=Math.sqrt(samples.reduce((s,x)=>s+x*x,0)/samples.length);if(rms<.004)return-1;const minLag=Math.floor(sampleRate/1200),maxLag=Math.floor(sampleRate/55);let bestLag=-1,bestCorr=0;for(let lag=minLag;lag<=maxLag;lag++){let corr=0;for(let i=0;i<samples.length-lag;i++)corr+=samples[i]*samples[i+lag];corr/=samples.length-lag;if(corr>bestCorr){bestCorr=corr;bestLag=lag}}return bestLag>0?sampleRate/bestLag:-1}
-    function measureSineAmplitude(samples,sampleRate,f){let sin=0,cos=0,n=samples.length;for(let i=0;i<n;i++){const ph=2*Math.PI*f*i/sampleRate;sin+=samples[i]*Math.sin(ph);cos+=samples[i]*Math.cos(ph)}return 2/n*Math.sqrt(sin*sin+cos*cos)}function normalizeSegment(input){let peak=0;for(let i=0;i<input.length;i++)peak=Math.max(peak,Math.abs(input[i]));const gain=peak>0?Math.min(16,.96/peak):1,out=new Float32Array(input.length);for(let i=0;i<input.length;i++)out[i]=input[i]*gain;return out}function rmsLevel(input){let s=0;for(let i=0;i<input.length;i++)s+=input[i]*input[i];return Math.sqrt(s/input.length)}function pickStrongestSegment(src,size){let best=0,br=0,hop=Math.floor(size/4);for(let st=0;st+size<=src.length;st+=hop){const r=rmsLevel(src.slice(st,st+size));if(r>br){br=r;best=st}}return src.slice(best,best+size)}
-    function spectralCentroid(samples,sampleRate,base){let sum=0,weight=0;for(let f=base;f<Math.min(9000,sampleRate/2);f+=base/2){const a=measureSineAmplitude(samples,sampleRate,f);sum+=f*a;weight+=a}return weight?sum/weight:base}function estimateNoise(samples,sampleRate,base,partialAmps){const tonal=partialAmps.reduce((s,a)=>s+a,0)/partialAmps.length;let high=0;[base*8.7,base*11.3,base*13.9,base*17.1].forEach(f=>{if(f<sampleRate/2)high+=measureSineAmplitude(samples,sampleRate,f)});return Math.max(0,Math.min(100,(high/(tonal+.0001))*90))}
-    function analyzeRecording(){if(!recordedBuffer){analysisText.textContent='Bitte zuerst aufnehmen.';return}const src=recordedBuffer.getChannelData(0),sr=recordedBuffer.sampleRate,size=Math.min(32768,src.length);let seg=normalizeSegment(pickStrongestSegment(src,size));for(let i=0;i<seg.length;i++)seg[i]*=.5-.5*Math.cos(2*Math.PI*i/(seg.length-1));const detected=autoCorrelate(seg,sr);if(detected<0){analysisText.textContent='Kein klarer Grundton erkannt. Versuche näher am Mikrofon aufzunehmen oder den Ton länger zu halten.';return}const note=nearestNote(detected);setCurrentNote(note);const amps=partials.map(p=>measureSineAmplitude(seg,sr,detected*p.ratio)),max=Math.max(...amps,.0001);partials.forEach((p,i)=>setPartialValue(p,Math.pow(amps[i]/max,.58)*100));const centroid=spectralCentroid(seg,sr,detected),bright=Math.max(10,Math.min(100,centroid/(detected*10)*100));setSynthParam('brightness',Math.round(bright));setSynthParam('filter',Math.round(Math.max(20,Math.min(100,bright+10))));setSynthParam('noise',Math.round(estimateNoise(seg,sr,detected,amps)));setSynthParam('resonance',Math.round(6+Math.min(18,amps[1]/max*12)));setSynthParam('decay',Math.round(Math.max(140,Math.min(1200,recordedBuffer.duration*420))));setSynthParam('sustain',Math.round(Math.max(35,Math.min(90,amps[0]/max*80))));latchMode=true;updateLatchButton();stopAllNotes();setTimeout(()=>playNote(note),80);analysisText.textContent=`Erkannt: ca. ${detected.toFixed(1)} Hz → ${note.name}. Obertöne, Rauschen, Filter und Hüllkurve wurden geschätzt.`}
-    function generateSample(t,freq){let sample=0,norm=partials.reduce((s,p)=>s+getPartialGain(p),0)||1;partials.forEach(p=>sample+=Math.sin(t*Math.PI*2*freq*p.ratio)*getPartialGain(p));sample/=norm;sample+=((Math.sin(t*777)+Math.sin(t*1234))*0.025)*(synthParams.noise.value/100);return sample}async function exportPresetAsWav(){const sampleRate=44100,duration=4,length=sampleRate*duration,freq=currentNote.freq,master=Number(masterVolume.value)/100;const attackSec=Number(attack.value)/1000,decaySec=synthParams.decay.value/1000,sustain=synthParams.sustain.value/100,releaseSec=Number(release.value)/1000;const audioBuffer=new Float32Array(length);for(let i=0;i<length;i++){const t=i/sampleRate;let env=1;if(t<attackSec)env=t/Math.max(.001,attackSec);else if(t<attackSec+decaySec){const p=(t-attackSec)/Math.max(.001,decaySec);env=1-(1-sustain)*p}else if(t>duration-releaseSec){const p=(t-(duration-releaseSec))/Math.max(.001,releaseSec);env=sustain*(1-p)}else env=sustain;audioBuffer[i]=Math.max(-1,Math.min(1,generateSample(t,freq)*env*master*.9))}const wavBuffer=encodeWav(audioBuffer,sampleRate);const name=safeFileName(presetName.value||currentNote.name,'wav');await saveBlob(new Blob([wavBuffer],{type:'audio/wav'}),name)}function exportPresetAsJson(){const name=safeFileName(presetName.value||currentNote.name,'json');const payload={name:(presetName.value||currentNote.name||'Klang'),created:new Date().toISOString(),app:'Ton-Oszillator Pro',preset:getPresetData()};saveBlob(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),name)}function encodeWav(samples,sampleRate){const buffer=new ArrayBuffer(44+samples.length*2),view=new DataView(buffer);function writeString(offset,str){for(let i=0;i<str.length;i++)view.setUint8(offset+i,str.charCodeAt(i))}writeString(0,'RIFF');view.setUint32(4,36+samples.length*2,true);writeString(8,'WAVE');writeString(12,'fmt ');view.setUint32(16,16,true);view.setUint16(20,1,true);view.setUint16(22,1,true);view.setUint32(24,sampleRate,true);view.setUint32(28,sampleRate*2,true);view.setUint16(32,2,true);view.setUint16(34,16,true);writeString(36,'data');view.setUint32(40,samples.length*2,true);let offset=44;for(let i=0;i<samples.length;i++,offset+=2){const s=Math.max(-1,Math.min(1,samples[i]));view.setInt16(offset,s<0?s*0x8000:s*0x7FFF,true)}return buffer}function drawWave(){const w=canvas.width,h=canvas.height,base=currentNote.freq,master=Number(masterVolume.value)/100,cycles=Math.max(2,base/80);ctx.clearRect(0,0,w,h);ctx.lineWidth=3;ctx.strokeStyle='#6ee7b7';ctx.beginPath();for(let x=0;x<w;x++){const t=x/w;const sample=generateSample(t*cycles,base);const y=h/2-sample*master*h*.95;x===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}ctx.stroke();ctx.strokeStyle='rgba(255,255,255,.16)';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,h/2);ctx.lineTo(w,h/2);ctx.stroke();if(activeVoices.size>0)animationId=requestAnimationFrame(drawWave);else if(animationId){cancelAnimationFrame(animationId);animationId=null}}
-    masterVolume.addEventListener('input',()=>{updateLabels();if(masterGain&&audioContext)masterGain.gain.setTargetAtTime(Number(masterVolume.value)/100,audioContext.currentTime,.01);drawWave()});attack.addEventListener('input',updateLabels);release.addEventListener('input',updateLabels);stopButton.addEventListener('click',stopAllNotes);latchButton.addEventListener('click',()=>{latchMode=!latchMode;updateLatchButton()});demoButton.addEventListener('pointerdown',e=>{e.preventDefault();latchMode?toggleLatchedNote(currentNote):playNote(currentNote)});demoButton.addEventListener('pointerup',()=>{if(!latchMode)stopNote(currentNote.name)});demoButton.addEventListener('pointercancel',()=>{if(!latchMode)stopNote(currentNote.name)});recordButton.addEventListener('click',()=>recorder&&recorder.state==='recording'?stopRecording():startRecording());analyzeButton.addEventListener('click',analyzeRecording);savePresetButton.addEventListener('click',saveCurrentPreset);loadPresetButton.addEventListener('click',loadSelectedPreset);exportWavButton.addEventListener('click',exportPresetAsWav);exportJsonButton.addEventListener('click',exportPresetAsJson);chooseFolderButton.addEventListener('click',chooseDownloadFolder);deletePresetButton.addEventListener('click',deleteSelectedPreset);presetSelect.addEventListener('change',()=>{presetName.value=presetSelect.value});
-    window.addEventListener('keydown',e=>{if(e.repeat)return;const note=notes.find(n=>n.key===e.key.toLowerCase());if(!note)return;latchMode?toggleLatchedNote(note):playNote(note)});window.addEventListener('keyup',e=>{const note=notes.find(n=>n.key===e.key.toLowerCase());if(note&&!latchMode)stopNote(note.name)});
-    window.addEventListener('resize',positionBlackKeys);octaveDownButton.addEventListener('click',()=>shiftOctave(-1));octaveUpButton.addEventListener('click',()=>shiftOctave(1));renderKeyboard();renderSynthControls();renderMixer();refreshPresetSelect();updateLabels();updateLatchButton();drawWave();
-  </script>
+    this.notes.push({ name: `C${startOctave + 2}`, freq: 440 * Math.pow(2, ((startOctave + 2 + 1) * 12 - 69) / 12), type: 'white', key: null, semi: 0 });
+    this.currentNote = this.notes[0];
+  }
+  ensureAudio() {
+    if(!this.ctx){ 
+      this.ctx = new (AudioContext || webkitAudioContext)(); 
+      this.master = this.ctx.createGain(); 
+      this.master.gain.value = this.params.masterVolume / 100; 
+      this.master.connect(this.ctx.destination); 
+      this.initNoise();
+    }
+    // Wichtig: AudioContext immer starten/fortsetzen
+    if(this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+    return this.ctx;
+  }
+  initNoise(){
+    if(!this.ctx) return;
+    let buf=this.ctx.createBuffer(1,this.ctx.sampleRate*4,this.ctx.sampleRate), data=buf.getChannelData(0);
+    for(let i=0;i<data.length;i++) data[i]=Math.random()*2-1;
+    this.noiseBuf=buf;
+  }
+  getPartialGain(p){ let b=0.25+this.params.brightness/100*0.95; return (p.value/100)/Math.pow(p.ratio,1-b*0.5); }
+  getFilterFreq(f){ let v=this.params.filter/100, br=this.params.brightness/100, ff=f*(2+v*34)*(0.45+br), nyq=this.ctx?this.ctx.sampleRate/2:22050; return Math.min(nyq-100,Math.max(20,ff)); }
+  playNote(note, latch){
+    if(latch && this.voices.has(note.name)){ this.stopNote(note.name); return; }
+    this.ensureAudio(); 
+    if(this.ctx.state === 'suspended') this.ctx.resume(); 
+    if(this.voices.has(note.name)) return;
+    this.currentNote=note;
+    let now=this.ctx.currentTime, aSec=this.params.attack/1000, dSec=this.params.decay/1000, sus=this.params.sustain/100, rSec=this.params.release/1000;
+    let gain=this.ctx.createGain(), filter=this.ctx.createBiquadFilter();
+    filter.type='lowpass'; filter.frequency.value=this.getFilterFreq(note.freq); filter.Q.value=this.params.resonance;
+    if(this.useCustomEnv && this.customEnv){ 
+      gain.gain.setValueAtTime(0,now); 
+      let dur=Math.min(3,this.customEnv.length/100); 
+      for(let i=0;i<this.customEnv.length;i++) gain.gain.setValueAtTime(this.customEnv[i]*0.9, now+(i/this.customEnv.length)*dur); 
+    } else { 
+      gain.gain.setValueAtTime(0,now); 
+      gain.gain.linearRampToValueAtTime(1,now+aSec); 
+      gain.gain.linearRampToValueAtTime(sus,now+aSec+dSec); 
+    }
+    filter.connect(gain); 
+    gain.connect(this.master);
+    let oscs=[], det=this.params.detune, mot=this.params.motion/100;
+    this.partials.forEach(p=>{ 
+      [-1,1].forEach(side=>{ 
+        let o=this.ctx.createOscillator(), g=this.ctx.createGain(); 
+        o.type='sine'; 
+        let cents=det*side*(0.35+0.65*Math.random())+side*mot*2; 
+        o.frequency.value=note.freq*p.ratio*Math.pow(2,cents/1200); 
+        g.gain.value=this.getPartialGain(p)/(det>0?1.65:1); 
+        o.connect(g); 
+        g.connect(filter); 
+        o.start(now); 
+        oscs.push({osc:o,gain:g}); 
+      }); 
+    });
+    let noiseSrc=null, noiseGain=null;
+    if(this.noiseBuf && this.params.noise>0){ 
+      noiseSrc=this.ctx.createBufferSource(); 
+      noiseGain=this.ctx.createGain(); 
+      let nf=this.ctx.createBiquadFilter(); 
+      noiseSrc.buffer=this.noiseBuf; 
+      noiseSrc.loop=true; 
+      nf.type='bandpass'; 
+      nf.frequency.value=Math.min(9000,note.freq*(2+this.params.brightness/8)); 
+      nf.Q.value=1.2; 
+      noiseGain.gain.value=this.params.noise/100*0.32; 
+      noiseSrc.connect(nf); 
+      nf.connect(noiseGain); 
+      noiseGain.connect(filter); 
+      noiseSrc.start(now); 
+    }
+    this.voices.set(note.name,{gain,filter,oscs,noiseSrc,noiseGain,releaseSec:rSec,stopTimeout:null});
+    return true;
+  }
+  stopNote(name,imm){
+    let v=this.voices.get(name); if(!v||!this.ctx) return;
+    if(v.stopTimeout) clearTimeout(v.stopTimeout);
+    let now=this.ctx.currentTime, rel=imm?0.01:v.releaseSec;
+    v.gain.gain.cancelScheduledValues(now); 
+    v.gain.gain.setTargetAtTime(0.0001,now,rel/4);
+    v.stopTimeout=setTimeout(()=>{ 
+      try{ 
+        v.oscs.forEach(o=>{ 
+          try{o.osc.stop()}catch(e){} 
+          o.osc.disconnect(); 
+          o.gain.disconnect(); 
+        }); 
+        if(v.noiseSrc) v.noiseSrc.stop(); 
+        v.filter.disconnect(); 
+        v.gain.disconnect(); 
+        this.voices.delete(name); 
+      }catch(e){} 
+    }, rel*1000+50);
+  }
+  stopAll(){ this.voices.forEach((_,n)=>this.stopNote(n,true)); }
+  updateVoices(){ if(!this.ctx||!this.currentNote) return; let now=this.ctx.currentTime; this.voices.forEach(v=>{ try{ v.filter.frequency.setTargetAtTime(this.getFilterFreq(this.currentNote.freq),now,0.02); v.filter.Q.setTargetAtTime(this.params.resonance,now,0.02); if(v.noiseGain) v.noiseGain.gain.setTargetAtTime(this.params.noise/100*0.32,now,0.02); v.oscs.forEach((o,i)=>{ let g=this.getPartialGain(this.partials[i%this.partials.length])/(this.params.detune>0?1.65:1); o.gain.gain.setTargetAtTime(g,now,0.01); }); }catch(e){} }); }
+  setParam(p,v){ if(this.params.hasOwnProperty(p)){ this.params[p]=v; if(p==='masterVolume' && this.master) this.master.gain.value=v/100; this.updateVoices(); } }
+  getParam(p){ return this.params[p]; }
+  setCustomEnvelope(e){ this.customEnv=e; this.useCustomEnv=e!==null; }
+  resetEnvelope(){ this.customEnv=null; this.useCustomEnv=false; }
+  getPreset(){ return { partials:this.partials.map(p=>({id:p.id,value:p.value})), synth:{...this.params}, note:this.currentNote?.name, customEnv:this.customEnv }; }
+  applyPreset(d){ if(!d) return; if(d.partials) d.partials.forEach(s=>{ let p=this.partials.find(x=>x.id===s.id); if(p) p.value=s.value; }); if(d.synth) Object.entries(d.synth).forEach(([k,v])=>{ if(this.params.hasOwnProperty(k)) this.params[k]=v; }); if(d.note){ let n=this.notes.find(x=>x.name===d.note); if(n) this.currentNote=n; } if(d.customEnv){ this.customEnv=d.customEnv; this.useCustomEnv=true; } this.updateVoices(); }
+  setPartial(id,val){ let p=this.partials.find(x=>x.id===id); if(p){ p.value=Math.max(0,Math.min(100,Math.round(val))); this.updateVoices(); } }
+  getPartials(){ return this.partials; }
+  getNotes(){ return this.notes; }
+  shiftOctave(d){ this.octaveShift=Math.max(-1,Math.min(1,this.octaveShift+d)); this.stopAll(); this.buildNotes(); return this.octaveShift; }
+  getCurrentNote(){ return this.currentNote; }
+  setCurrentNote(n){ this.currentNote=n; }
+  getActiveCount(){ return this.voices.size; }
+  generateSample(t,freq,vol){
+    let s=0, norm=this.partials.reduce((a,p)=>a+this.getPartialGain(p),0)||1;
+    this.partials.forEach(p=>{ s+=Math.sin(t*Math.PI*2*freq*p.ratio)*this.getPartialGain(p); });
+    s/=norm; s+=((Math.sin(t*777)+Math.sin(t*1234))*0.025)*(this.params.noise/100);
+    let env=1; if(this.useCustomEnv && this.customEnv){ let idx=Math.min(Math.floor(t/3*this.customEnv.length),this.customEnv.length-1); env=this.customEnv[idx]; }
+    return Math.max(-1,Math.min(1,s*vol/100*0.9*env));
+  }
+  getSpectrum(){ let f=this.currentNote?.freq||261.63, h=[]; for(let i=1;i<=16;i++){ let p=this.partials.find(p=>p.ratio===i); h.push({freq:f*i, amp:p?this.getPartialGain(p):0}); } return h; }
+  findNearestNote(f){ return this.notes.reduce((b,n)=>Math.abs(n.freq-f)<Math.abs(b.freq-f)?n:b,this.notes[0]); }
+  generateWavData(durationSec=3){
+    let sampleRate=44100, length=sampleRate*durationSec, freq=this.currentNote.freq, vol=this.params.masterVolume;
+    let buffer=new Float32Array(length);
+    for(let i=0;i<length;i++){ let t=i/sampleRate; buffer[i]=this.generateSample(t,freq,vol); }
+    return this.encodeWav(buffer,sampleRate);
+  }
+  encodeWav(samples,sampleRate){
+    let buffer=new ArrayBuffer(44+samples.length*2), view=new DataView(buffer);
+    let writeString=(offset,str)=>{ for(let i=0;i<str.length;i++) view.setUint8(offset+i,str.charCodeAt(i)); };
+    writeString(0,'RIFF'); view.setUint32(4,36+samples.length*2,true); writeString(8,'WAVE'); writeString(12,'fmt ');
+    view.setUint32(16,16,true); view.setUint16(20,1,true); view.setUint16(22,1,true); view.setUint32(24,sampleRate,true);
+    view.setUint32(28,sampleRate*2,true); view.setUint16(32,2,true); view.setUint16(34,16,true); writeString(36,'data');
+    view.setUint32(40,samples.length*2,true); let offset=44;
+    for(let i=0;i<samples.length;i++,offset+=2){ let s=Math.max(-1,Math.min(1,samples[i])); view.setInt16(offset,s<0?s*0x8000:s*0x7FFF,true); }
+    return buffer;
+  }
+}
+
+// ==================== UI ====================
+const synth = new SynthEngine();
+const $ = id => document.getElementById(id);
+
+// DOM Elements
+const freqVal = $('freqVal'), noteVal = $('noteVal'), statusVal = $('statusVal'), statusLed = $('statusLed');
+const octaveVal = $('octaveVal'), octaveDown = $('octaveDownBtn'), octaveUp = $('octaveUpBtn');
+const masterVol = $('masterVol'), masterVolVal = $('masterVolVal'), attack = $('attack'), attackVal = $('attackVal'), release = $('release'), releaseVal = $('releaseVal');
+const latchBtn = $('latchBtn'), demoBtn = $('demoBtn'), stopBtn = $('stopBtn');
+const recordBtn = $('recordBtn'), analyzeBtn = $('analyzeBtn'), analysisText = $('analysisText'), analysisProgress = $('analysisProgress');
+const presetName = $('presetName'), presetSelect = $('presetSelect'), savePreset = $('savePreset'), loadPreset = $('loadPreset'), delPreset = $('delPreset');
+const oscCanvas = $('oscCanvas'), envCanvas = $('envCanvas'), specCanvas = $('specCanvas');
+const resetEnvBtn = $('resetEnvBtn'), applyEnvBtn = $('applyEnvBtn');
+const mixerDiv = $('mixer'), synthControlsDiv = $('synthControls');
+const keyboardDiv = $('keyboard'), whiteKeysDiv = $('whiteKeys');
+const exportWavBtn = $('exportWavBtn'), chooseFolderBtn = $('chooseFolderBtn');
+
+let latchMode = false, animId = null, specAnimId = null;
+let mediaRecorder = null, recordedChunks = [], recordedBuffer = null, recordingStream = null;
+let downloadFolderHandle = null;
+
+function updateUI(){
+  masterVolVal.innerText = masterVol.value;
+  attackVal.innerText = attack.value;
+  releaseVal.innerText = release.value;
+  let note = synth.getCurrentNote();
+  if(note){ freqVal.innerText = note.freq.toFixed(2); noteVal.innerText = note.name; }
+  octaveVal.innerText = synth.octaveShift>0 ? `+${synth.octaveShift}` : String(synth.octaveShift);
+  let active = synth.getActiveCount()>0;
+  statusVal.innerHTML = active ? 'An' : 'Aus';
+  if(active) statusLed.classList.add('active'); else statusLed.classList.remove('active');
+}
+function setKeyActive(name,act){ let el = document.querySelector(`[data-note="${name}"]`); if(el) el.classList.toggle('active',act); }
+
+// Tastatur - ORIGINALER STIL mit schwarzen Tasten und Buchstaben
+function renderKeyboard(){
+  whiteKeysDiv.innerHTML = '';
+  keyboardDiv.querySelectorAll('.key.black').forEach(k=>k.remove());
+  
+  const notes = synth.getNotes();
+  const whiteNotes = notes.filter(n => n.type === 'white');
+  
+  whiteNotes.forEach(note => {
+    const key = document.createElement('button');
+    key.className = 'key white';
+    key.dataset.note = note.name;
+    key.textContent = note.key ? `${note.name}\n${note.key.toUpperCase()}` : note.name;
+    bindKeyEvents(key, note);
+    whiteKeysDiv.appendChild(key);
+  });
+  
+  positionBlackKeys();
+}
+
+function getWhiteKeyWidth(){
+  const whiteCount = synth.getNotes().filter(n => n.type === 'white').length;
+  const rectWidth = keyboardDiv.getBoundingClientRect().width;
+  if (rectWidth && whiteCount) return rectWidth / whiteCount;
+  return 60;
+}
+
+function positionBlackKeys(){
+  keyboardDiv.querySelectorAll('.key.black').forEach(k => k.remove());
+  const w = getWhiteKeyWidth();
+  const off = w * 0.68;
+  const whiteNotes = synth.getNotes().filter(n => n.type === 'white');
+  const whiteIndexMap = new Map();
+  whiteNotes.forEach((note, idx) => whiteIndexMap.set(note.name, idx));
+  
+  synth.getNotes().forEach((note, index) => {
+    if (note.type !== 'black') return;
+    const prevWhite = [...synth.getNotes().slice(0, index)].reverse().find(n => n.type === 'white');
+    if (!prevWhite) return;
+    
+    const key = document.createElement('button');
+    key.className = 'key black';
+    key.dataset.note = note.name;
+    key.textContent = note.key ? `${note.name}\n${note.key.toUpperCase()}` : note.name;
+    key.style.left = `${whiteIndexMap.get(prevWhite.name) * w + off}px`;
+    bindKeyEvents(key, note);
+    keyboardDiv.appendChild(key);
+  });
+}
+
+function bindKeyEvents(key, note){
+  key.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    key.setPointerCapture(e.pointerId);
+    if (latchMode) {
+      if (synth.voices.has(note.name)) {
+        synth.stopNote(note.name);
+        setKeyActive(note.name, false);
+      } else {
+        synth.playNote(note, true);
+        setKeyActive(note.name, true);
+      }
+    } else {
+      synth.playNote(note);
+      setKeyActive(note.name, true);
+    }
+    updateUI();
+    drawOsc();
+  });
+  
+  key.addEventListener('pointerup', e => {
+    e.preventDefault();
+    if (!latchMode) {
+      synth.stopNote(note.name);
+      setKeyActive(note.name, false);
+      updateUI();
+      drawOsc();
+    }
+  });
+  
+  key.addEventListener('pointercancel', () => {
+    if (!latchMode) {
+      synth.stopNote(note.name);
+      setKeyActive(note.name, false);
+      updateUI();
+      drawOsc();
+    }
+  });
+}
+
+// Zeichnen
+function drawOsc(){
+  let w = oscCanvas.clientWidth, h = oscCanvas.clientHeight;
+  if(w===0){ requestAnimationFrame(drawOsc); return; }
+  oscCanvas.width = w; oscCanvas.height = h;
+  let ctx = oscCanvas.getContext('2d');
+  let note = synth.getCurrentNote(); if(!note) return;
+  let base = note.freq, cycles = Math.max(2,base/80);
+  ctx.clearRect(0,0,w,h); ctx.lineWidth=2; ctx.strokeStyle='#6ee7b7';
+  ctx.beginPath();
+  for(let x=0;x<w;x++){
+    let t=x/w, s=0, norm=synth.partials.reduce((a,p)=>a+synth.getPartialGain(p),0)||1;
+    synth.partials.forEach(p=>{ s+=Math.sin(t*Math.PI*2*cycles*p.ratio)*synth.getPartialGain(p); });
+    s/=norm; s=Math.max(-1,Math.min(1,s));
+    let y=h/2 - s*h*0.4;
+    x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+  ctx.strokeStyle='rgba(255,255,255,.2)'; ctx.beginPath(); ctx.moveTo(0,h/2); ctx.lineTo(w,h/2); ctx.stroke();
+  if(synth.getActiveCount()>0) animId = requestAnimationFrame(drawOsc);
+  else if(animId){ cancelAnimationFrame(animId); animId=null; }
+}
+
+function drawEnv(){
+  let w = envCanvas.clientWidth, h = envCanvas.clientHeight;
+  if(w===0){ requestAnimationFrame(drawEnv); return; }
+  envCanvas.width = w; envCanvas.height = h;
+  let ctx = envCanvas.getContext('2d'); ctx.clearRect(0,0,w,h);
+  if(synth.useCustomEnv && synth.customEnv){
+    ctx.beginPath(); ctx.strokeStyle='#fbbf24'; ctx.lineWidth=2;
+    for(let i=0;i<synth.customEnv.length;i++){ let x=(i/synth.customEnv.length)*w, y=h - synth.customEnv[i]*h; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); }
+    ctx.stroke(); ctx.fillStyle='rgba(251,191,36,0.2)'; ctx.fillRect(0,0,w,h);
+  }else{
+    let a=synth.getParam('attack')/1000, d=synth.getParam('decay')/1000, s=synth.getParam('sustain')/100, r=synth.getParam('release')/1000, dur=3;
+    let pts=[{t:0,v:0}]; let t1=a; pts.push({t:Math.min(t1,dur),v:1}); let t2=t1+d; pts.push({t:Math.min(t2,dur),v:s}); let t3=dur-r; if(t3>pts[pts.length-1].t) pts.push({t:t3,v:s}); pts.push({t:dur,v:0});
+    ctx.beginPath(); ctx.strokeStyle='#6ee7b7'; ctx.lineWidth=2;
+    for(let i=0;i<pts.length;i++){ let x=(pts[i].t/dur)*w, y=h-pts[i].v*h; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); }
+    ctx.stroke(); ctx.fillStyle='rgba(110,231,183,0.15)'; ctx.fillRect(0,0,w,h);
+  }
+}
+
+function drawSpec(){
+  let w = specCanvas.clientWidth, h = specCanvas.clientHeight;
+  if(w===0){ requestAnimationFrame(drawSpec); return; }
+  specCanvas.width = w; specCanvas.height = h;
+  let ctx = specCanvas.getContext('2d'); ctx.clearRect(0,0,w,h);
+  let harmonics = synth.getSpectrum(), maxAmp = Math.max(...harmonics.map(h=>h.amp),0.01);
+  let barW = w / harmonics.length;
+  for(let i=0;i<harmonics.length;i++){
+    let height = (harmonics[i].amp/maxAmp) * h * 0.7, x = i*barW, y = h-height;
+    let grad = ctx.createLinearGradient(x,y,x,h); grad.addColorStop(0,'#6ee7b7'); grad.addColorStop(1,'#60a5fa');
+    ctx.fillStyle = grad; ctx.fillRect(x+1,y,barW-2,height);
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.strokeRect(x+1,y,barW-2,height);
+    if(i<5 && barW>20){ ctx.fillStyle='#9aa4b2'; ctx.font='7px monospace'; ctx.fillText(`${Math.round(harmonics[i].freq)}Hz`, x+2, y-2); }
+  }
+  specAnimId = requestAnimationFrame(drawSpec);
+}
+
+// Mixer & Controls
+function renderMixer(){
+  mixerDiv.innerHTML='';
+  synth.getPartials().forEach(p=>{
+    let card = document.createElement('div'); card.className='slider-card';
+    card.innerHTML = `<label>${p.label}</label><div class="slider-top"><span>${p.group}</span><span><span id="${p.id}Val">${p.value}</span>%</span></div><input id="${p.id}" type="range" min="0" max="100" value="${p.value}">`;
+    mixerDiv.appendChild(card);
+    let inp = card.querySelector('input');
+    inp.addEventListener('input',e=>{ synth.setPartial(p.id,Number(e.target.value)); $(`${p.id}Val`).innerText=e.target.value; drawOsc(); drawSpec(); });
+  });
+}
+
+function renderSynthControls(){
+  let params = { decay:{label:'Decay',min:20,max:2200,unit:'ms'}, sustain:{label:'Sustain',min:0,max:100,unit:'%'}, detune:{label:'Detune',min:0,max:30,unit:'ct'}, noise:{label:'Rauschen',min:0,max:100,unit:'%'}, filter:{label:'Filter',min:10,max:100,unit:'%'}, resonance:{label:'Resonanz',min:1,max:30,unit:'Q'}, brightness:{label:'Brillanz',min:0,max:100,unit:'%'}, motion:{label:'Schwebung',min:0,max:100,unit:'%'} };
+  synthControlsDiv.innerHTML='';
+  Object.entries(params).forEach(([id,p])=>{
+    let val = synth.getParam(id);
+    let box = document.createElement('div'); box.className='mini';
+    box.innerHTML = `<label>${p.label}</label><div class="read"><span>${p.min}-${p.max}</span><span><span id="${id}Val">${val}</span>${p.unit}</span></div><input id="${id}" type="range" min="${p.min}" max="${p.max}" value="${val}">`;
+    synthControlsDiv.appendChild(box);
+    let inp = box.querySelector('input');
+    inp.addEventListener('input',e=>{ let v=Number(e.target.value); synth.setParam(id,v); $(`${id}Val`).innerText=v; drawOsc(); drawSpec(); drawEnv(); });
+  });
+}
+
+// WAV Export
+async function exportWav(){
+  synth.ensureAudio(); // AudioContext sicherstellen
+  let wavData = synth.generateWavData(3);
+  let blob = new Blob([wavData], {type:'audio/wav'});
+  let fileName = `synth_${synth.getCurrentNote()?.name || 'sound'}_${Date.now()}.wav`;
+  if(downloadFolderHandle){
+    try{
+      let fileHandle = await downloadFolderHandle.getFileHandle(fileName, {create:true});
+      let writable = await fileHandle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      analysisText.innerText = `✅ WAV gespeichert im Ordner: ${fileName}`;
+      return;
+    }catch(e){ analysisText.innerText = `⚠️ Ordner-Fehler, normaler Download`; }
+  }
+  let url = URL.createObjectURL(blob);
+  let a = document.createElement('a');
+  a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  analysisText.innerText = `✅ WAV exportiert: ${fileName}`;
+}
+
+async function chooseFolder(){
+  if(!window.showDirectoryPicker){ analysisText.innerText = '⚠️ Ordnerauswahl wird nicht unterstützt.'; return; }
+  try{
+    downloadFolderHandle = await window.showDirectoryPicker({mode:'readwrite'});
+    analysisText.innerText = '📁 Ordner gewählt. WAVs werden dort gespeichert.';
+  }catch(e){ analysisText.innerText = '❌ Keine Ordnerauswahl.'; }
+}
+
+// Audio Analyse
+function autoCorrelate(samples, sr){
+  let rms=0; for(let i=0;i<samples.length;i++) rms+=samples[i]*samples[i]; rms=Math.sqrt(rms/samples.length);
+  if(rms<0.008) return -1;
+  let minLag=Math.floor(sr/1200), maxLag=Math.floor(sr/55), bestLag=-1, bestCorr=0;
+  for(let lag=minLag;lag<=maxLag;lag++){ let corr=0; for(let i=0;i<samples.length-lag;i++) corr+=samples[i]*samples[i+lag]; corr/=(samples.length-lag); if(corr>bestCorr){ bestCorr=corr; bestLag=lag; } }
+  if(bestLag===-1) return -1; let freq=sr/bestLag; return (freq<55||freq>1200)?-1:freq;
+}
+function measureAmp(samples,sr,freq){ let sin=0,cos=0,n=samples.length; for(let i=0;i<n;i++){ let ph=2*Math.PI*freq*i/sr; sin+=samples[i]*Math.sin(ph); cos+=samples[i]*Math.cos(ph); } return (2/n)*Math.sqrt(sin*sin+cos*cos); }
+function findLoudest(seg,size){ let best=0,bestRms=0,hop=Math.floor(size/3); for(let s=0;s+size<=seg.length;s+=hop){ let rms=0; for(let i=s;i<s+size;i++) rms+=seg[i]*seg[i]; rms=Math.sqrt(rms/size); if(rms>bestRms){ bestRms=rms; best=s; } } return seg.slice(best,best+size); }
+function applyWindow(s){ let n=s.length,res=new Float32Array(n); for(let i=0;i<n;i++) res[i]=s[i]*(0.54-0.46*Math.cos(2*Math.PI*i/(n-1))); return res; }
+function extractEnvelope(buf,sr){
+  let data=buf.getChannelData(0), points=200, env=new Array(points).fill(0), seg=Math.floor(data.length/points);
+  let maxVal=0; for(let i=0;i<data.length;i++) maxVal=Math.max(maxVal,Math.abs(data[i]));
+  let gain = maxVal>0.01 ? 0.9/maxVal : 1;
+  for(let i=0;i<points;i++){ let start=i*seg, end=Math.min(start+seg,data.length), peak=0; for(let j=start;j<end;j++) peak=Math.max(peak,Math.abs(data[j]*gain)); env[i]=Math.min(1,peak); }
+  for(let i=1;i<env.length-1;i++) env[i]=(env[i-1]+env[i]+env[i+1])/3;
+  return env;
+}
+async function startRecording(){
+  try{
+    recordedChunks=[]; recordedBuffer=null;
+    recordingStream = await navigator.mediaDevices.getUserMedia({ audio:{ echoCancellation:false, noiseSuppression:false, autoGainControl:true } });
+    mediaRecorder = new MediaRecorder(recordingStream);
+    mediaRecorder.ondataavailable = e=>{ if(e.data.size>0) recordedChunks.push(e.data); };
+    mediaRecorder.onstop = async ()=>{
+      let blob = new Blob(recordedChunks,{type:'audio/webm'});
+      let buf = await blob.arrayBuffer();
+      let tmpCtx = new AudioContext();
+      recordedBuffer = await tmpCtx.decodeAudioData(buf);
+      await tmpCtx.close();
+      analysisText.innerText = '✅ Aufnahme OK. Jetzt analysieren.';
+      analyzeBtn.disabled=false;
+    };
+    mediaRecorder.start();
+    recordBtn.innerText = '⏹ Stopp';
+    analysisText.innerText = '🎙 Aufnahme läuft...';
+    analyzeBtn.disabled=true;
+  }catch(e){ analysisText.innerText = '❌ Mikrofon-Zugriff fehlgeschlagen.'; }
+}
+function stopRecording(){
+  if(mediaRecorder && mediaRecorder.state==='recording') mediaRecorder.stop();
+  if(recordingStream) recordingStream.getTracks().forEach(t=>t.stop());
+  recordBtn.innerText = '🎙 Aufnehmen';
+}
+async function analyzeAndApply(){
+  if(!recordedBuffer){ analysisText.innerText='❌ Keine Aufnahme.'; return; }
+  analysisProgress.style.display='block'; analysisText.innerText='🔍 Analysiere...';
+  await new Promise(r=>setTimeout(r,30));
+  try{
+    let data = recordedBuffer.getChannelData(0), sr = recordedBuffer.sampleRate;
+    let envelope = extractEnvelope(recordedBuffer, sr);
+    synth.setCustomEnvelope(envelope);
+    drawEnv();
+    let segSize = Math.min(32768, Math.floor(sr*1.2));
+    let seg = findLoudest(data, segSize);
+    let maxAmp=0; for(let i=0;i<seg.length;i++) maxAmp=Math.max(maxAmp,Math.abs(seg[i]));
+    if(maxAmp>0.01) for(let i=0;i<seg.length;i++) seg[i]/=maxAmp;
+    seg = applyWindow(seg);
+    let fund = autoCorrelate(seg, sr);
+    if(fund<55 || fund>1200){ analysisText.innerText='❌ Kein klarer Ton erkannt.'; analysisProgress.style.display='none'; return; }
+    let note = synth.findNearestNote(fund);
+    synth.setCurrentNote(note);
+    let amps=[]; for(let i=1;i<=12;i++) amps.push(measureAmp(seg,sr,fund*i));
+    let maxA = Math.max(...amps,0.001);
+    synth.getPartials().forEach(p=>{
+      if(p.ratio<=12 && Math.floor(p.ratio)===p.ratio){ let idx=Math.floor(p.ratio)-1; let val=Math.min(100,Math.pow(amps[idx]/maxA,0.6)*100); synth.setPartial(p.id,Math.round(val)); }
+      else synth.setPartial(p.id,0);
+    });
+    document.querySelectorAll('#mixer input').forEach(inp=>{ let id=inp.id, part=synth.getPartials().find(p=>p.id===id); if(part){ inp.value=part.value; let span=$(id+'Val'); if(span) span.innerText=part.value; } });
+    updateUI(); drawOsc(); drawSpec();
+    synth.stopAll();
+    // AudioContext sicherstellen und Ton abspielen
+    synth.ensureAudio();
+    setTimeout(()=>{ 
+      synth.playNote(note); 
+      setTimeout(()=>{ 
+        if(!latchMode) synth.stopNote(note.name); 
+      }, 2000); 
+    }, 100);
+    analysisText.innerText = `✅ ${fund.toFixed(1)}Hz → ${note.name}. Hüllkurve + Obertöne normiert.`;
+  }catch(e){ analysisText.innerText='❌ Fehler.'; }
+  finally{ analysisProgress.style.display='none'; }
+}
+
+// Presets
+function getStore(){ try{ return JSON.parse(localStorage.getItem('synthPresets')||'{}'); }catch(e){ return {}; } }
+function saveStore(s){ localStorage.setItem('synthPresets',JSON.stringify(s)); }
+function refreshSelect(){ let s=getStore(); presetSelect.innerHTML='<option value="">Preset</option>'; Object.keys(s).sort().forEach(n=>{ let opt=document.createElement('option'); opt.value=n; opt.innerText=n; presetSelect.appendChild(opt); }); }
+function saveCurrentPreset(){ let name=(presetName.value||`Klang ${new Date().toLocaleString()}`).trim(); if(!name) return; let s=getStore(); s[name]=synth.getPreset(); saveStore(s); presetName.value=name; refreshSelect(); presetSelect.value=name; analysisText.innerText=`💾 "${name}" gespeichert.`; }
+function loadSelectedPreset(){ let s=getStore(), name=presetSelect.value; if(name && s[name]){ presetName.value=name; synth.applyPreset(s[name]); document.querySelectorAll('#synthControls input').forEach(inp=>{ let id=inp.id, val=synth.getParam(id); if(val!==undefined){ inp.value=val; let span=$(id+'Val'); if(span) span.innerText=val; } }); document.querySelectorAll('#mixer input').forEach(inp=>{ let id=inp.id, part=synth.getPartials().find(p=>p.id===id); if(part){ inp.value=part.value; let span=$(id+'Val'); if(span) span.innerText=part.value; } }); masterVol.value=synth.getParam('masterVolume'); attack.value=synth.getParam('attack'); release.value=synth.getParam('release'); updateUI(); drawOsc(); drawSpec(); drawEnv(); analysisText.innerText=`📂 "${name}" geladen.`; } }
+function deletePreset(){ let name=presetSelect.value||presetName.value.trim(); if(!name) return; let s=getStore(); delete s[name]; saveStore(s); presetName.value=''; refreshSelect(); analysisText.innerText=`🗑 "${name}" gelöscht.`; }
+
+// Events
+function initEvents(){
+  masterVol.addEventListener('input',()=>{ synth.setParam('masterVolume',Number(masterVol.value)); updateUI(); drawOsc(); });
+  attack.addEventListener('input',()=>{ synth.setParam('attack',Number(attack.value)); updateUI(); drawEnv(); });
+  release.addEventListener('input',()=>{ synth.setParam('release',Number(release.value)); updateUI(); drawEnv(); });
+  stopBtn.addEventListener('click',()=>{ synth.stopAll(); updateUI(); drawOsc(); });
+  latchBtn.addEventListener('click',()=>{ latchMode=!latchMode; latchBtn.classList.toggle('active',latchMode); latchBtn.innerText=latchMode?'🔓 Halten an':'🔒 Halten aus'; });
+  demoBtn.addEventListener('pointerdown',e=>{ e.preventDefault(); let n=synth.getCurrentNote(); if(n) synth.playNote(n); updateUI(); drawOsc(); });
+  demoBtn.addEventListener('pointerup',()=>{ if(!latchMode){ let n=synth.getCurrentNote(); if(n) synth.stopNote(n.name); updateUI(); drawOsc(); } });
+  recordBtn.addEventListener('click',()=>{ if(mediaRecorder && mediaRecorder.state==='recording') stopRecording(); else startRecording(); });
+  analyzeBtn.addEventListener('click',analyzeAndApply);
+  savePreset.addEventListener('click',saveCurrentPreset);
+  loadPreset.addEventListener('click',loadSelectedPreset);
+  delPreset.addEventListener('click',deletePreset);
+  presetSelect.addEventListener('change',()=>{ presetName.value=presetSelect.value; loadSelectedPreset(); });
+  resetEnvBtn.addEventListener('click',()=>{ synth.resetEnvelope(); drawEnv(); analysisText.innerText='Hüllkurve zurückgesetzt (ADSR).'; });
+  applyEnvBtn.addEventListener('click',()=>{ synth.updateVoices(); analysisText.innerText='Hüllkurve übernommen.'; });
+  octaveDown.addEventListener('click',()=>{ synth.shiftOctave(-1); renderKeyboard(); updateUI(); drawOsc(); drawSpec(); });
+  octaveUp.addEventListener('click',()=>{ synth.shiftOctave(1); renderKeyboard(); updateUI(); drawOsc(); drawSpec(); });
+  exportWavBtn.addEventListener('click',exportWav);
+  chooseFolderBtn.addEventListener('click',chooseFolder);
+  window.addEventListener('resize',()=>{ positionBlackKeys(); drawOsc(); drawEnv(); drawSpec(); });
+  
+  // Tastatur-Shortcuts
+  window.addEventListener('keydown', e => {
+    if(e.repeat) return;
+    const note = synth.getNotes().find(n => n.key === e.key.toLowerCase());
+    if(!note) return;
+    e.preventDefault();
+    if(latchMode){
+      if(synth.voices.has(note.name)) synth.stopNote(note.name);
+      else synth.playNote(note);
+    } else {
+      synth.playNote(note);
+    }
+    setKeyActive(note.name, true);
+    updateUI();
+    drawOsc();
+  });
+  window.addEventListener('keyup', e => {
+    const note = synth.getNotes().find(n => n.key === e.key.toLowerCase());
+    if(note && !latchMode) {
+      synth.stopNote(note.name);
+      setKeyActive(note.name, false);
+      updateUI();
+      drawOsc();
+    }
+  });
+}
+
+function init(){
+  renderKeyboard(); renderMixer(); renderSynthControls(); initEvents();
+  updateUI(); drawOsc(); drawEnv(); drawSpec(); refreshSelect();
+  analyzeBtn.disabled=false;
+  // AudioContext initialisieren (aber noch nicht starten)
+  synth.ensureAudio();
+  setTimeout(()=>{ drawOsc(); drawEnv(); drawSpec(); },100);
+}
+init();
+</script>
 </body>
 </html>
